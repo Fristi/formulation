@@ -55,6 +55,10 @@ trait AvroDsl extends AvroDslRecordN { self =>
     override def apply[F[_] : AvroAlgebra]: F[BigDecimal] = implicitly[AvroAlgebra[F]].bigDecimal(scale, precision)
   }
 
+  def fixed(name: String, size: Int, namespace: Option[String] = None): Avro[Array[Byte]] = new Avro[Array[Byte]] {
+    override def apply[F[_] : AvroAlgebra]: F[Array[Byte]] = implicitly[AvroAlgebra[F]].fixed(name, size, namespace)
+  }
+
   val uuid: Avro[UUID] = new Avro[UUID] {
     override def apply[F[_] : AvroAlgebra]: F[UUID] = implicitly[AvroAlgebra[F]].uuid
   }

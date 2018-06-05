@@ -13,7 +13,7 @@ import shapeless.CNil
 import scala.annotation.implicitNotFound
 import scala.util.Try
 import cats.implicits._
-import org.apache.avro.generic.GenericRecord
+import org.apache.avro.generic.{GenericRecord, GenericFixed}
 
 @implicitNotFound(msg = "AvroDecoder[${A}] not found, did you implicitly define Avro[${A}]?")
 sealed trait AvroDecoder[A] { self =>
@@ -112,6 +112,9 @@ object AvroDecoder {
     override val uuid: AvroDecoder[UUID] = string.andThen(str => Either.fromTry(Try(UUID.fromString(str))))
 
     override val instant: AvroDecoder[Instant] = long.andThen(ts => Either.fromTry(Try(Instant.ofEpochMilli(ts))))
+
+    override def fixed(name: String, size: Int, namespace: Option[String] = None): AvroDecoder[Array[Byte]] =
+      partial { case (_, s, v: GenericFixed) => Validated.valid(v.bytes()) }
 
     override def bigDecimal(scale: Int, precision: Int): AvroDecoder[BigDecimal] = partial[BigDecimal] { case (path, _, v: ByteBuffer) =>
 

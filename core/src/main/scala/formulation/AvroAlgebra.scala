@@ -16,6 +16,8 @@ trait AvroAlgebra[F[_]] extends AvroAlgebraRecordN[F] {
   val long: F[Long]
   val cnil: F[CNil]
 
+  def fixed(name: String, size: Int, namespace: Option[String] = None): F[Array[Byte]]
+
   val uuid: F[UUID]
   val instant: F[Instant]
 

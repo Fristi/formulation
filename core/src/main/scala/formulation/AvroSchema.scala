@@ -3,7 +3,7 @@ package formulation
 import java.time.Instant
 import java.util.UUID
 
-import org.apache.avro.{LogicalTypes, Schema}
+import org.apache.avro.{LogicalTypes, Schema, SchemaBuilder}
 import shapeless.CNil
 
 import scala.annotation.implicitNotFound
@@ -46,6 +46,9 @@ object AvroSchema {
     override val long: AvroSchema[Long] = AvroSchema.create(Schema.create(Schema.Type.LONG))
 
     override val cnil: AvroSchema[CNil] = AvroSchema.create(Schema.create(Schema.Type.NULL))
+
+    override def fixed(name: String, size: Int, namespace: Option[String] = None): AvroSchema[Array[Byte]] =
+      AvroSchema.create(SchemaBuilder.fixed(name).namespace(namespace.orNull).size(size))
 
     override val uuid: AvroSchema[UUID] = {
       val schema = Schema.create(Schema.Type.STRING)

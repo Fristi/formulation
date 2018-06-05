@@ -5,6 +5,7 @@ import java.time.Instant
 import java.util.UUID
 
 import org.apache.avro.{Conversions, LogicalTypes, Schema}
+import org.apache.avro.generic.GenericData
 import shapeless.CNil
 
 import scala.annotation.implicitNotFound
@@ -59,6 +60,9 @@ object AvroEncoder {
     override val long: AvroEncoder[Long] = identity
 
     override val cnil: AvroEncoder[CNil] = AvroEncoder.create((s, v) => s -> null)
+
+    override def fixed(name: String, size: Int, namespace: Option[String] = None): AvroEncoder[Array[Byte]] =
+      AvroEncoder.create((s, v) => s -> new GenericData.Fixed(s, v))
 
     override val uuid: AvroEncoder[UUID] = by(string)(_.toString)
     
