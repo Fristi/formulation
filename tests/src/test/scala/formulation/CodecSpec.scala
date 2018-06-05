@@ -105,6 +105,12 @@ class CodecSpec extends WordSpec with Matchers with GeneratorDrivenPropertyCheck
         assert(a, option(UserV1.codec))
       }
     }
+
+    "work with fixed types" in {
+      forAll { (a: SomeProtocolHandshake) =>
+        assert(a, SomeProtocolHandshake.codec)
+      }
+    }
   }
 
   def assert[A](entity: A, avroPart: Avro[A]): Boolean = {

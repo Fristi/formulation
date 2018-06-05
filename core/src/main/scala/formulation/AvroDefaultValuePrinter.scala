@@ -43,8 +43,7 @@ object AvroDefaultValuePrinter {
       decimalConversion.toBytes(decimal.setScale(scale).bigDecimal, null, decimalType).array()
     }
 
-    override def fixed(name: String, size: Int, namespace: Option[String] = None): AvroDefaultValuePrinter[Array[Byte]] =
-      by(byteArray) { bytes => bytes }
+    override def fixed(name: String, size: Int, namespace: Option[String] = None): AvroDefaultValuePrinter[Array[Byte]] = byteArray
 
     override val byteArray: AvroDefaultValuePrinter[Array[Byte]] =
       create(bytes => new TextNode(new String(bytes, Charset.forName("ISO-8859-1"))))

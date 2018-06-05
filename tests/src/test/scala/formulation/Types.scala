@@ -238,3 +238,26 @@ object ADTWithCaseObject {
 
   implicit val codec: Avro[ADTWithCaseObject] = (case1 | case2 | caseObject1).as[ADTWithCaseObject]
 }
+
+case class SomeProtocolHandshake(sessionId: UUID, sha1Checksum: Array[Byte])
+
+object SomeProtocolHandshake {
+  def uuidToBytes: UUID => Array[Byte] = uuid => {
+    val bb = java.nio.ByteBuffer.wrap(new Array[Byte](16))
+    bb.putLong(uuid.getMostSignificantBits)
+    bb.putLong(uuid.getLeastSignificantBits)
+    bb.array()
+  }
+
+  def uuidFromBytes: Array[Byte] => UUID = raw => {
+    val bb = java.nio.ByteBuffer.wrap(raw)
+    val high = bb.getLong()
+    val low = bb.getLong()
+    new UUID(high, low)
+  }
+
+  implicit val codec: Avro[SomeProtocolHandshake] = record2("protocol", "SomeProtocolHandshake")(SomeProtocolHandshake.apply)(
+    "sessionId" -> member(fixed("uuid", 16).imap(raw => uuidFromBytes(raw))(id => uuidToBytes(id)), _.sessionId),
+    "sha1Checksum" -> member(fixed("SHA1", 20), _.sha1Checksum)
+  )
+}

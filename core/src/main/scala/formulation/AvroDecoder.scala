@@ -114,7 +114,7 @@ object AvroDecoder {
     override val instant: AvroDecoder[Instant] = long.andThen(ts => Either.fromTry(Try(Instant.ofEpochMilli(ts))))
 
     override def fixed(name: String, size: Int, namespace: Option[String] = None): AvroDecoder[Array[Byte]] =
-      partial { case (_, s, v: GenericFixed) => Validated.valid(v.bytes()) }
+      partial { case (_, _, v: GenericFixed) => Validated.valid(v.bytes()) }
 
     override def bigDecimal(scale: Int, precision: Int): AvroDecoder[BigDecimal] = partial[BigDecimal] { case (path, _, v: ByteBuffer) =>
 

@@ -128,4 +128,12 @@ trait ArbitraryHelpers {
 
     Gen.oneOf(case1, case2, Gen.const(ADTWithCaseObject.CaseObject1))
   }
+
+  implicit val someProtocolHandshakeArb: Arbitrary[SomeProtocolHandshake] = Arbitrary {
+    for {
+      sessionId <- Gen.uuid
+      sha1Checksum <- Gen.const(java.security.MessageDigest.getInstance("SHA-1")
+        .digest(sessionId.toString.getBytes("UTF-8")))
+    } yield SomeProtocolHandshake(sessionId, sha1Checksum)
+  }
 }
