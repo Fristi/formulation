@@ -26,6 +26,8 @@ class SchemaSpec extends WordSpec with Matchers  {
     "generate for Map[String, Int]" in { schemaString(map(int)(Attempt.success)(identity)) shouldBe """{"type":"record","name":"Generic","namespace":"formulation","doc":"","fields":[{"name":"value","type":{"type":"map","values":"int"}}]}"""}
     "generate for ADT" in { schemaString(BookingProcess.codec) shouldBe """{"type":"record","name":"Generic","namespace":"formulation","doc":"","fields":[{"name":"value","type":[{"type":"record","name":"Cancelled","doc":"","fields":[{"name":"disc","type":"int"}]},{"type":"record","name":"DateSelected","doc":"","fields":[{"name":"disc","type":"int"},{"name":"datetime","type":"string"}]},{"type":"record","name":"NotStarted","doc":"","fields":[{"name":"disc","type":"int"}]},"null"]}]}"""}
 
+    "generate for ADT with case object" in { schemaString(ADTWithCaseObject.codec) shouldBe """{"type":"record","name":"Generic","namespace":"formulation","doc":"","fields":[{"name":"value","type":[{"type":"record","name":"CaseObject1","namespace":"ADTWithCaseObject","doc":"","fields":[]},{"type":"record","name":"Case1","namespace":"ADTWithCaseObject","doc":"","fields":[{"name":"arg","type":"string"}]},{"type":"record","name":"Case2","namespace":"ADTWithCaseObject","doc":"","fields":[{"name":"arg1","type":"int"},{"name":"arg2","type":"string"}]},"null"]}]}""" }
+
     "generate aliases for members" in {
       schema[Fault.Error].toString() shouldBe """{"type":"record","name":"Error","namespace":"fault","doc":"","fields":[{"name":"id","type":"int","aliases":["identifier","errorId"]},{"name":"message","type":"string"}]}"""
     }

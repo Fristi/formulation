@@ -218,3 +218,23 @@ object UserEventV2 {
 
   implicit val avro: Avro[UserEventV2] = (registered | activated).as[UserEventV2]
 }
+
+sealed trait ADTWithCaseObject
+object ADTWithCaseObject {
+  case class Case1(arg: String) extends ADTWithCaseObject
+  case class Case2(arg1: Int, arg2: String) extends ADTWithCaseObject
+  case object CaseObject1 extends ADTWithCaseObject
+
+  implicit val case1: Avro[Case1] = record1("ADTWithCaseObject", "Case1")(Case1.apply)(
+    "arg" -> member(string, _.arg)
+  )
+
+  implicit val case2: Avro[Case2] = record2("ADTWithCaseObject", "Case2")(Case2.apply)(
+    "arg1" -> member(int, _.arg1),
+    "arg2" -> member(string, _.arg2)
+  )
+
+  implicit val caseObject1: Avro[CaseObject1.type] = record0("ADTWithCaseObject", "CaseObject1")(CaseObject1)
+
+  implicit val codec: Avro[ADTWithCaseObject] = (case1 | case2 | caseObject1).as[ADTWithCaseObject]
+}

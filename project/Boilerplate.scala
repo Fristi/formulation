@@ -93,7 +93,8 @@ object Boilerplate {
          |package formulation
          |
          |trait AvroAlgebraRecordN[F[_]] {
-         -  def record${arity}[${`A..N`}, Z](namespace: String, name: String)(f: (${`A..N`}) => Z)($params): F[Z]
+         |  def record0[Z](namespace: String, name: String)(f: => Z): F[Z]
+         -  def record$arity[${`A..N`}, Z](namespace: String, name: String)(f: (${`A..N`}) => Z)($params): F[Z]
          |}
       """
     }
@@ -117,6 +118,7 @@ object Boilerplate {
         |  private def naturalTransformation[G[_] : AvroAlgebra]: (Avro ~> G) = new (Avro ~> G) {
         |    override def apply[A](fa: Avro[A]): G[A] = fa.apply[G]
         |  }
+        |  def record0[Z](namespace: String, name: String)(f: => Z): Avro[Z] = new Avro[Z] { def apply[F[_]: AvroAlgebra]: F[Z] = implicitly[AvroAlgebra[F]].record0(namespace,name)(f) }
         -  def record$arity[${`A..N`}, Z](namespace: String, name: String)(f: (${`A..N`}) => Z)($params): Avro[Z] = new Avro[Z] { def apply[F[_] : AvroAlgebra]: F[Z] = implicitly[AvroAlgebra[F]].record$arity(namespace, name)(f)($applies) }
         |}
         |
@@ -146,7 +148,7 @@ object Boilerplate {
         |    member.aliases.foreach(alias => field.addAlias(alias))
         |    field
         |  }
-        |
+        |  def record0[Z](namespace: String, name: String)(f: => Z): AvroSchema[Z] = AvroSchema.create(Schema.createRecord(name, "", namespace, false, List.empty.asJava))
         -  def record$arity[${`A..N`}, Z](namespace: String, name: String)(f: (${`A..N`}) => Z)($params): AvroSchema[Z] = AvroSchema.create(Schema.createRecord(name, "", namespace, false, List($applies).asJava))
         |}
         |
@@ -182,6 +184,7 @@ object Boilerplate {
         |  private def decodeField[A](p: JsonPointer, schema: Schema, record: GenericRecord, field: String, decoder: AvroDecoder[A]): Validated[List[AvroDecodeError], A] =
         |    getSchemaForField(p, schema, field).andThen(s => decoder.decode(p.member(field), s, record.get(field)))
         |
+        |  def record0[Z](namespace: String, name: String)(f: => Z): AvroDecoder[Z] = AvroDecoder.record(namespace, name) { case _ => Validated.Valid(f) }
         -  def record$arity[${`A..N`}, Z](namespace: String, name: String)(f: (${`A..N`}) => Z)($params): AvroDecoder[Z] = AvroDecoder.record(namespace, name) { case (p,s,r) => $mapper }
         |}
         |
@@ -204,6 +207,7 @@ object Boilerplate {
         |import org.apache.avro.generic.GenericData
         |
         |trait AvroEncoderRecordN { self: AvroAlgebra[AvroEncoder] =>
+        |  def record0[Z](namespace: String, name: String)(f: => Z): AvroEncoder[Z] = AvroEncoder.createNamed(namespace, name) { case (s, _) => val r = new GenericData.Record(s); r }
         -  def record$arity[${`A..N`}, Z](namespace: String, name: String)(f: (${`A..N`}) => Z)($params): AvroEncoder[Z] = AvroEncoder.createNamed(namespace, name) { case (s, v) => val r = new GenericData.Record(s); $applies; r }
         |}
         |
@@ -226,6 +230,7 @@ object Boilerplate {
         |import org.codehaus.jackson.node._
         |
         |trait AvroDefaultValuePrinterRecordN { self: AvroAlgebra[AvroDefaultValuePrinter] =>
+        |  def record0[Z](namespace: String, name: String)(f: => Z): AvroDefaultValuePrinter[Z] = AvroDefaultValuePrinter.create { case _ => val r = new ObjectNode(JsonNodeFactory.instance); r }
         -  def record$arity[${`A..N`}, Z](namespace: String, name: String)(f: (${`A..N`}) => Z)($params): AvroDefaultValuePrinter[Z] = AvroDefaultValuePrinter.create { case v => val r = new ObjectNode(JsonNodeFactory.instance); $applies; r }
         |}
         |

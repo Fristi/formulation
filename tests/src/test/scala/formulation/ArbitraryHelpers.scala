@@ -108,4 +108,24 @@ trait ArbitraryHelpers {
       money <- Gen.choose(0, Int.MaxValue).map(BigDecimal.apply)
     } yield UserV2(userId, username, email, password, age, countries, bookingProcess, money)
   }
+
+  implicit val adtWithCaseObjectCase1Arb: Arbitrary[ADTWithCaseObject.Case1] = Arbitrary {
+    for {
+      arg <- Gen.alphaStr
+    } yield ADTWithCaseObject.Case1(arg)
+  }
+
+  implicit val adtWithCaseObjectCase2Arb: Arbitrary[ADTWithCaseObject.Case2] = Arbitrary {
+    for {
+      arg1 <- Gen.choose(-100, 100)
+      arg2 <- Gen.alphaStr
+    } yield ADTWithCaseObject.Case2(arg1, arg2)
+  }
+
+  implicit val adtWithCaseObjectArb: Arbitrary[ADTWithCaseObject] = Arbitrary {
+    def case1 = adtWithCaseObjectCase1Arb.arbitrary
+    def case2 = adtWithCaseObjectCase2Arb.arbitrary
+
+    Gen.oneOf(case1, case2, Gen.const(ADTWithCaseObject.CaseObject1))
+  }
 }

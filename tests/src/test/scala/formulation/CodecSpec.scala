@@ -89,6 +89,11 @@ class CodecSpec extends WordSpec with Matchers with GeneratorDrivenPropertyCheck
         assert(a, Fault.codec)
       }
     }
+    "word with ADT with case object" in {
+      forAll { (a: ADTWithCaseObject) =>
+        assert(a, ADTWithCaseObject.codec)
+      }
+    }
     "work with Option with list" in {
       forAll { (a: Option[List[String]]) =>
         assert(a, option(list(string)))
